@@ -21,7 +21,7 @@ public class TestContoller {
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = "/p", method = RequestMethod.GET)
 	public String home(Locale locale, Model model) {
 		System.out.println("test ㅎㅎ");
 		return "home";

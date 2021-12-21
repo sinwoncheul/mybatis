@@ -106,10 +106,27 @@ public void getListPage(Model model,@RequestParam("num") int num) throws Excepti
 	// 표시되는 페이지 번호 중 첫번째 번호
 	int startPageNum = endPageNum - (pageNum_cnt - 1);
 	
+	int endPageNum_tmp = (int)(Math.ceil((double)count / (double)pageNum_cnt));
+	
+	if ( endPageNum > endPageNum_tmp) {
+		endPageNum = endPageNum_tmp;
+	}
+	
+	boolean prev = startPageNum == 1? false : true;
+	boolean next = endPageNum * pageNum_cnt >= count? false : true;
+	
 	List<BoardVO> list = null;
 	list = service.listPage(displayPost, postNum);
 	model.addAttribute("list", list);
 	model.addAttribute("pageNum",pageNum);
+	
+	// 시작 및 끝 번호
+	model.addAttribute("startPageNum", startPageNum);
+	model.addAttribute("endPageNum", endPageNum);
+
+	// 이전 및 다음 
+	model.addAttribute("prev", prev);
+	model.addAttribute("next", next);
 
 
 }
