@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.board.domain.BoardVO;
+import com.board.domain.Page;
 import com.board.service.BoardService;
 
 @Controller
@@ -85,51 +86,68 @@ return "redirect:/board/list";
 @RequestMapping(value = "/listPage", method = RequestMethod.GET)
 public void getListPage(Model model,@RequestParam("num") int num) throws Exception {
 	
-	//게시물 총 개수
-	int count = service.count();
+	Page page = new Page();
 	
-	// 한 페이지에 출력할 게시물 갯수
-	int postNum = 10;
-	
-	// 하단 페이징 번호([ 게시물 총 개수 나누기 한 페이지에 출력할 개수]의 올림)
-	int pageNum = (int)Math.ceil((double)count/postNum);
-	
-	// 출력할 게시물
-	int displayPost = (num -1) *postNum;
-	
-	// 한번에 표시할 페이징 번호 개수
-	int pageNum_cnt = 10;
-	
-	// 표시되는 페이지 번호 중 마지막 번호
-	int endPageNum = (int)(Math.ceil((double)num / (double)pageNum_cnt) * pageNum_cnt);
-	
-	// 표시되는 페이지 번호 중 첫번째 번호
-	int startPageNum = endPageNum - (pageNum_cnt - 1);
-	
-	int endPageNum_tmp = (int)(Math.ceil((double)count / (double)pageNum_cnt));
-	
-	if ( endPageNum > endPageNum_tmp) {
-		endPageNum = endPageNum_tmp;
-	}
-	
-	boolean prev = startPageNum == 1? false : true;
-	boolean next = endPageNum * pageNum_cnt >= count? false : true;
-	
-	List<BoardVO> list = null;
-	list = service.listPage(displayPost, postNum);
-	model.addAttribute("list", list);
-	model.addAttribute("pageNum",pageNum);
-	
-	// 시작 및 끝 번호
-	model.addAttribute("startPageNum", startPageNum);
-	model.addAttribute("endPageNum", endPageNum);
+	page.setNum(num);
+	page.setCount(service.count());  
 
-	// 이전 및 다음 
-	model.addAttribute("prev", prev);
-	model.addAttribute("next", next);
+	List list = null; 
+	list = service.listPage(page.getDisplayPost(), page.getPostNum());
+
+	model.addAttribute("list", list);   
+	model.addAttribute("pageNum", page.getPageNum());
+
+	model.addAttribute("startPageNum", page.getStartPageNum());
+	model.addAttribute("endPageNum", page.getEndPageNum());
+	 
+	  model.addAttribute("prev", page.getPrev());
+	model.addAttribute("next", page.getNext());  
+
+	model.addAttribute("page", page);
+	model.addAttribute("select", num);
 
 
 }
+
+//게시물 목록 + 페이징 추가
+@RequestMapping(value = "/listPageSearch", method = RequestMethod.GET)
+public void getListPageSearch(Model model,@RequestParam("num") int num,
+		@RequestParam(value = "searchType",required = false, defaultValue = "title") String searchType,
+		   @RequestParam(value = "keyword",required = false, defaultValue = "") String keyword) throws Exception {
+	
+	Page page = new Page();
+	
+	page.setNum(num);
+	page.setCount(service.searchCount(searchType, keyword));  
+	
+	// 검색 타입과 검색어
+	//page.setSearchTypeKeyword(searchType, keyword);
+	page.setSearchType(searchType);
+	page.setKeyword(keyword);
+	
+	
+	List list = null; 
+	list = service.listPage(page.getDisplayPost(), page.getPostNum());
+
+	model.addAttribute("list", list);   
+	model.addAttribute("pageNum", page.getPageNum());
+
+	model.addAttribute("startPageNum", page.getStartPageNum());
+	model.addAttribute("endPageNum", page.getEndPageNum());
+	 
+	  model.addAttribute("prev", page.getPrev());
+	model.addAttribute("next", page.getNext());  
+
+	model.addAttribute("page", page);
+	model.addAttribute("select", num);
+	
+	// model.addAttribute("searchType", searchType);
+	// model.addAttribute("keyword", keyword);
+
+
+}
+
+
 
  
 }
